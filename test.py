@@ -1,12 +1,3 @@
-"""
-This sample demonstrates a simple skill built with the Amazon Alexa Skills Kit.
-The Intent Schema, Custom Slots, and Sample Utterances for this skill, as well
-as testing instructions are located at http://amzn.to/1LzFrj6
-
-For additional samples, visit the Alexa Skills Kit Getting Started guide at
-http://amzn.to/1LGWsLG
-"""
-
 from __future__ import print_function
 
 from urllib2 import Request, urlopen, URLError
@@ -38,8 +29,9 @@ def surfs_up(surf_spot):
     
     spot = parsed_json[1]['spot_name']
     swell = parsed_json[1]['size']
+    cond = parsed_json[1]['shape_full']
 
-    surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high"
+    surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high with" + cond + " conditions."
     return surfreport
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -126,7 +118,7 @@ def get_welcome_response():
 
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Say somethine like, tell me the surf report at mavericks, " 
+    speech_output = "Hey Bro, I can tell you surf reports. Just say something like, tell me the surf report at mavericks." 
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me your surf spot by saying, " \
@@ -151,28 +143,23 @@ def set_color_in_session(intent, session):
         if intent['slots']['Color']['value'] == 'mavericks':
             surf_spot = '122'
             speech_output = surfs_up(surf_spot)
+            should_end_session = True
         elif intent['slots']['Color']['value']:
             #surf_spot = '119'
             try:
                 keyo = intent['slots']['Color']['value']
                 surf_spot = str(dict[keyo])
                 speech_output = surfs_up(surf_spot)
+                should_end_session = True
             except:
                 speech_output = 'I dont know the surf report at that spot yet.'
                 
         else:
-            speech_output = "I now know your favorite color is " + \
-                            favorite_color + \
-                            ". You can ask me your favorite color by saying, " \
-                            "what's my favorite color?"
-        reprompt_text = "You can ask me your favorite color by saying, " \
-                        "what's my favorite color?"
+            speech_output = "Talk to you later."
+        reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
     else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "Please try again."
-        reprompt_text = "I'm not sure what your favorite color is. " \
-                        "You can tell me your favorite color by saying, " \
-                        "my favorite color is red."
+        speech_output = "I'm not sure what surf spot you said. "
+        reprompt_text = "I'm not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
@@ -190,8 +177,7 @@ def get_color_from_session(intent, session):
         speech_output = "Have fun surfing "
         should_end_session = True
     else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "You can say, my favorite color is red."
+        speech_output = "I'm not sure what surf spot you said. Can you say the spot again? "
         should_end_session = False
 
     # Setting reprompt_text to None signifies that we do not want to reprompt
