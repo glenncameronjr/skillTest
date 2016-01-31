@@ -31,6 +31,19 @@ def surfs_up(surf_spot):
     swell = parsed_json[1]['size']
     cond = parsed_json[1]['shape_full']
 
+    if cond == "Poor-Fair":
+        cond = "sloppy"
+    elif cond == "Poor":
+        cond = "sloppy"
+    elif cond == "Fair":
+        cond = "surfable"
+    elif cond == "Fair-Good":
+        cond = "surfable"
+    elif cond == "Good":
+        cond = "glassy"
+    else:
+        cond = cond
+
     surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high with" + cond + " conditions."
     return surfreport
 def lambda_handler(event, context):
@@ -118,7 +131,7 @@ def get_welcome_response():
 
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Hey Bro, I can tell you surf reports. Just say something like, tell me the surf report at mavericks." 
+    speech_output = "Hey Bro, I can tell you surf reports of popular spots in California. To get started just say something like, tell me the surf report at mavericks." 
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me your surf spot by saying, " \
@@ -152,7 +165,7 @@ def set_color_in_session(intent, session):
                 speech_output = surfs_up(surf_spot)
                 should_end_session = True
             except:
-                speech_output = 'I dont know the surf report at that spot yet.'
+                speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
                 
         else:
             speech_output = "Talk to you later."
