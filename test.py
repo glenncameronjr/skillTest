@@ -126,7 +126,7 @@ def get_welcome_response():
 
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Say, tell me the report at mavericks, " 
+    speech_output = "Say somethine like, tell me the surf report at mavericks, " 
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me your surf spot by saying, " \
@@ -153,9 +153,13 @@ def set_color_in_session(intent, session):
             speech_output = surfs_up(surf_spot)
         elif intent['slots']['Color']['value']:
             #surf_spot = '119'
-            keyo = intent['slots']['Color']['value']
-            surf_spot = str(dict[keyo])
-            speech_output = surfs_up(surf_spot)
+            try:
+                keyo = intent['slots']['Color']['value']
+                surf_spot = str(dict[keyo])
+                speech_output = surfs_up(surf_spot)
+            except:
+                speech_output = 'I dont know the surf report at that spot yet.'
+                
         else:
             speech_output = "I now know your favorite color is " + \
                             favorite_color + \
@@ -183,8 +187,7 @@ def get_color_from_session(intent, session):
 
     if "favoriteColor" in session.get('attributes', {}):
         favorite_color = session['attributes']['favoriteColor']
-        speech_output = "Your favorite color is " + favorite_color + \
-                        ". Goodbye."
+        speech_output = "Have fun surfing "
         should_end_session = True
     else:
         speech_output = "I'm not sure what your favorite color is. " \
