@@ -4,7 +4,7 @@ from urllib2 import Request, urlopen, URLError
 import json
 '''
 
-request = Request('http://api.spitcast.com/api/spot/forecast/' + surf_spot)
+request = Request('http://www.surfable.surf/api/spot' + surf_spot + '.php)
 response = urlopen(request)
 
 surf_report = response.read()
