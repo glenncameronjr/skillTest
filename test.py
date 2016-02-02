@@ -2,6 +2,7 @@ from __future__ import print_function
 
 from urllib2 import Request, urlopen, URLError
 import json
+import datetime
 '''
 
 request = Request('http://www.surfable.surf/api/spot' + surf_spot + '.php)
@@ -27,9 +28,46 @@ def surfs_up(surf_spot):
     parsed_json = json.loads(surf_report)
     #print parsed_json
     
-    spot = parsed_json[1]['spot_name']
-    swell = parsed_json[1]['size']
-    cond = parsed_json[1]['shape_full']
+    now = datetime.datetime.now()
+    h = now.hour
+    postfix = 'AM'
+    if h > 12:
+       postfix = 'PM'
+       h -= 12
+    hourX = '{}{}'.format(h or 12,postfix)
+
+    timeDict = {
+        '12AM': 16,
+        '1AM': 17,
+        '2AM': 18,
+        '3AM': 19,
+        '4AM': 20,
+        '5AM': 21,
+        '6AM': 22,
+        '7AM': 23,
+        '8AM': 0,
+        '9AM': 1,
+        '10AM': 2,
+        '11AM': 3,
+        '12PM': 4,
+        '1PM': 5,
+        '2PM': 6,
+        '3PM': 7,
+        '4PM': 8,
+        '5PM': 9,
+        '6PM': 10,
+        '7PM': 11,
+        '8PM': 12,
+        '9PM': 13,
+        '10PM': 14,
+        '11PM': 15,
+    }
+
+    t  = timeDict[hourX]
+    #surfreport = hourX
+    spot = parsed_json[t]['spot_name']
+    swell = parsed_json[t]['size']
+    cond = parsed_json[t]['shape_full']
 
     if cond == "Poor-Fair":
         cond = "sloppy"
