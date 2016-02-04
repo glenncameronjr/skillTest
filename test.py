@@ -82,7 +82,7 @@ def surfs_up(surf_spot):
     else:
         cond = cond
 
-    surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high with" + cond + " conditions."
+    surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high with " + cond + " conditions."
     return surfreport
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -97,7 +97,7 @@ def lambda_handler(event, context):
     function.
     """
     if (event['session']['application']['applicationId'] !=
-            "APPLICATION ID"):
+            "amzn1.echo-sdk-ams.app.6022acc8-396c-4e40-b274-4f8db4613e99"):
         raise ValueError("Invalid Application ID")
 
     if event['session']['new']:
