@@ -97,7 +97,7 @@ def lambda_handler(event, context):
     function.
     """
     if (event['session']['application']['applicationId'] !=
-            "amzn1.echo-sdk-ams.app.6022acc8-396c-4e40-b274-4f8db4613e99"):
+            "id"):
         raise ValueError("Invalid Application ID")
 
     if event['session']['new']:
