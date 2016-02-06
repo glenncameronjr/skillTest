@@ -82,7 +82,7 @@ def surfs_up(surf_spot):
     else:
         cond = cond
 
-    surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high with" + cond + " conditions."
+    surfreport = "The waves at " + str(spot) + " are currently " + str(swell) + " feet high with " + cond + " conditions."
     return surfreport
 def lambda_handler(event, context):
     """ Route the incoming request based on type (LaunchRequest, IntentRequest,
@@ -95,11 +95,13 @@ def lambda_handler(event, context):
     Uncomment this if statement and populate with your skill's application ID to
     prevent someone else from configuring a skill that sends requests to this
     function.
+    
     """
-    # if (event['session']['application']['applicationId'] !=
-    #         "amzn1.echo-sdk-ams.app.[unique-value-here]"):
-    #     raise ValueError("Invalid Application ID")
-
+    """
+    if (event['session']['application']['applicationId'] !=
+            ""):
+        raise ValueError("Invalid Application ID")
+    """
     if event['session']['new']:
         on_session_started({'requestId': event['request']['requestId']},
                            event['session'])
@@ -141,17 +143,16 @@ def on_intent(intent_request, session):
 
     # Dispatch to your skill's intent handlers
     if intent_name == "SurfReportIntent":
-        try:
-            return set_color_in_session(intent, session)
-        except:
-            intent = "something"
-            return set_color_in_session(intent, session)
-    #elif intent_name == "WhatsMyColorIntent":
-        #return get_color_from_session(intent, session)
+        return set_color_in_session(intent, session)
+    elif intent_name == "WhatsMyColorIntent":
+        return get_color_from_session(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     else:
-        raise ValueError("Invalid on_intent")
+        intent_name = "SurfReportIntent"
+        intent = "something"
+        return set_color_in_session(intent, session)
+        #raise ValueError("Invalid on_intent")
 
 
 def on_session_ended(session_ended_request, session):
@@ -191,58 +192,38 @@ def set_color_in_session(intent, session):
     card_title = intent['name']
     session_attributes = {}
     should_end_session = False
-    
-    if 'Color' in intent['slots']:
-        favorite_color = intent['slots']['Color']['value']
+
+    if 'Location' in intent['slots']:
+        favorite_color = intent['slots']['Location']['value']
         session_attributes = create_favorite_color_attributes(favorite_color)
-        try:
-            keyo = intent['slots']['Color']['value']
-            surf_spot = str(dict[keyo])
+        if intent['slots']['Location']['value'] == 'mavericks':
+            surf_spot = '122'
             speech_output = surfs_up(surf_spot)
             should_end_session = True
-        except:
-            speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
-            reprompt_text = 'I didnt understand. Try saying something like. Tell me the surf report at seal beach pier'
-            
-    else:
-        speech_output = "I'm not sure what your favorite color is. " \
-                        "Please try again."
-        reprompt_text = "I'm not sure what your favorite color is. " \
-                        "You can tell me your favorite color by saying, " \
-                        "my favorite color is red."
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
-'''
-    if 'Color' in intent['slots']:
-        favorite_color = intent['slots']['Color']['value']
-        session_attributes = create_favorite_color_attributes(favorite_color)
-        if intent['slots']['Color']['value'] is None:
-            intent['slots']['Color']['value'] = 'nope'
-            should_end_session = True
             reprompt_text = None
-            speech_output = "There was a problem. You didn't say a surf spot."
-        elif intent['slots']['Color']['value']:
+        elif intent['slots']['Location']['value']:
+            #surf_spot = '119'
             try:
-                keyo = intent['slots']['Color']['value']
+                keyo = intent['slots']['Location']['value']
                 surf_spot = str(dict[keyo])
                 speech_output = surfs_up(surf_spot)
                 should_end_session = True
+                reprompt_text = None
             except:
                 speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
+                reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
+                
                 
         else:
-            intent['slots']['Color']['value'] = 'nopers'
-            #favorite_color = 'something'
             speech_output = "Talk to you later."
-        reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
+            reprompt_text = None
     else:
-        favorite_color = 'something'
-        #speech_output = "I'm not sure what surf spot you said. "
+        speech_output = "I'm not sure what surf spot you said. "
         reprompt_text = "I'm not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
-'''
+
 def create_favorite_color_attributes(favorite_color):
     return {"favoriteColor": favorite_color}
 
@@ -276,8 +257,8 @@ def build_speechlet_response(title, output, reprompt_text, should_end_session):
         },
         'card': {
             'type': 'Simple',
-            'title': 'SessionSpeechlet - ' + title,
-            'content': 'SessionSpeechlet - ' + output
+            'title': 'Surfable - ',
+            'content': 'Surf report - ' + output
         },
         'reprompt': {
             'outputSpeech': {
