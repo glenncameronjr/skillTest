@@ -95,7 +95,6 @@ def lambda_handler(event, context):
     Uncomment this if statement and populate with your skill's application ID to
     prevent someone else from configuring a skill that sends requests to this
     function.
-    
     """
     """
     if (event['session']['application']['applicationId'] !=
@@ -142,14 +141,14 @@ def on_intent(intent_request, session):
     intent_name = intent_request['intent']['name']
 
     # Dispatch to your skill's intent handlers
-    if intent_name == "SurfReportIntent":
+    if intent_name == "MyColorIsIntent":
         return set_color_in_session(intent, session)
     elif intent_name == "WhatsMyColorIntent":
         return get_color_from_session(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
         return get_welcome_response()
     else:
-        intent_name = "SurfReportIntent"
+        intent_name = "MyColorIsIntent"
         intent = "something"
         return set_color_in_session(intent, session)
         #raise ValueError("Invalid on_intent")
@@ -193,26 +192,25 @@ def set_color_in_session(intent, session):
     session_attributes = {}
     should_end_session = False
 
-    if 'Location' in intent['slots']:
-        favorite_color = intent['slots']['Location']['value']
+    if 'Color' in intent['slots']:
+        favorite_color = intent['slots']['Color']['value']
         session_attributes = create_favorite_color_attributes(favorite_color)
-        if intent['slots']['Location']['value'] == 'mavericks':
-            surf_spot = '122'
-            speech_output = surfs_up(surf_spot)
-            should_end_session = True
-            reprompt_text = None
-        elif intent['slots']['Location']['value']:
-            #surf_spot = '119'
-            try:
-                keyo = intent['slots']['Location']['value']
-                surf_spot = str(dict[keyo])
-                speech_output = surfs_up(surf_spot)
-                should_end_session = True
-                reprompt_text = None
-            except:
+        if intent['slots']['Color']['value']:
+            if intent['slots']['Color']['value'] in dict:
+                #surf_spot = '119'
+                try:
+                    keyo = intent['slots']['Color']['value']
+                    surf_spot = str(dict[keyo])
+                    speech_output = surfs_up(surf_spot)
+                    should_end_session = True
+                    reprompt_text = None
+                except:
+                    speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
+                    reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
+            else: 
                 speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
                 reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
-                
+                    
                 
         else:
             speech_output = "Talk to you later."
