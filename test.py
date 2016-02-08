@@ -191,7 +191,7 @@ def set_color_in_session(intent, session):
     card_title = intent['name']
     session_attributes = {}
     should_end_session = False
-
+    
     if 'Color' in intent['slots']:
         favorite_color = intent['slots']['Color']['value']
         session_attributes = create_favorite_color_attributes(favorite_color)
@@ -205,19 +205,33 @@ def set_color_in_session(intent, session):
                     should_end_session = True
                     reprompt_text = None
                 except:
-                    speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
+                    speech_output = "I dont know the surf report at that spot yet. You can try another spot in California."
                     reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
+            elif intent['slots']['Color']['value'] == 'stop':
+                should_end_session = True
+                speech_output = "Goodbye"
+                reprompt_text = None
+            elif intent['slots']['Color']['value'] == 'cancel':
+                should_end_session = True
+                speech_output = "Goodbye"
+                reprompt_text = None
+            elif intent['slots']['Color']['value'] is None:
+                should_end_session = True
+                speech_output = "ummm okay"
+                reprompt_text = None
+                
             else: 
                 speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
                 reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
-                    
-                
+                should_end_session = False
         else:
             speech_output = "Talk to you later."
             reprompt_text = None
+            should_end_session = True
     else:
-        speech_output = "I'm not sure what surf spot you said. "
-        reprompt_text = "I'm not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
+        speech_output = "Im not sure what surf spot you said. "
+        reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
+        should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
 
