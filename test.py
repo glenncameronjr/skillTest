@@ -3,20 +3,7 @@ from __future__ import print_function
 from urllib2 import Request, urlopen, URLError
 import json
 import datetime
-'''
 
-request = Request('http://www.surfable.surf/api/spot' + surf_spot + '.php)
-response = urlopen(request)
-
-surf_report = response.read()
-parsed_json = json.loads(surf_report)
-#print parsed_json
-
-spot = parsed_json[1]['spot_name']
-swell = parsed_json[1]['size']
-
-surfreport = "The waves at " + str(spot) + " are currently" + str(swell) + " feet high"
-'''
 
 surf_spot = '117'
 
@@ -191,49 +178,54 @@ def set_color_in_session(intent, session):
     card_title = intent['name']
     session_attributes = {}
     should_end_session = False
-    
-    if 'Color' in intent['slots']:
-        favorite_color = intent['slots']['Color']['value']
-        session_attributes = create_favorite_color_attributes(favorite_color)
-        if intent['slots']['Color']['value']:
-            if intent['slots']['Color']['value'] in dict:
-                #surf_spot = '119'
-                try:
-                    keyo = intent['slots']['Color']['value']
-                    surf_spot = str(dict[keyo])
-                    speech_output = surfs_up(surf_spot)
+    try:
+        if 'value' in intent['slots']['Color']:
+            favorite_color = intent['slots']['Color']['value']
+            session_attributes = create_favorite_color_attributes(favorite_color)
+            if intent['slots']['Color']['value']:
+                if intent['slots']['Color']['value'] in dict:
+                    #surf_spot = '119'
+                    try:
+                        keyo = intent['slots']['Color']['value']
+                        surf_spot = str(dict[keyo])
+                        speech_output = surfs_up(surf_spot)
+                        should_end_session = True
+                        reprompt_text = None
+                    except:
+                        speech_output = "I dont know the surf report at that spot yet. You can try another spot in California."
+                        reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
+                elif intent['slots']['Color']['value'] == 'stop':
                     should_end_session = True
+                    speech_output = "Goodbye"
                     reprompt_text = None
-                except:
-                    speech_output = "I dont know the surf report at that spot yet. You can try another spot in California."
-                    reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
-            elif intent['slots']['Color']['value'] == 'stop':
-                should_end_session = True
-                speech_output = "Goodbye"
+                elif intent['slots']['Color']['value'] == 'cancel':
+                    should_end_session = True
+                    speech_output = "Goodbye"
+                    reprompt_text = None
+                elif intent['slots']['Color']['value'] is None:
+                    should_end_session = True
+                    speech_output = "ummm okay"
+                    reprompt_text = None
+                    
+                else: 
+                    speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
+                    reprompt_text = 'You can get the surf report by saying something like, tell me the surf report at steamer lane.'
+                    should_end_session = False
+            else:
+                speech_output = "Talk to you later."
                 reprompt_text = None
-            elif intent['slots']['Color']['value'] == 'cancel':
                 should_end_session = True
-                speech_output = "Goodbye"
-                reprompt_text = None
-            elif intent['slots']['Color']['value'] is None:
-                should_end_session = True
-                speech_output = "ummm okay"
-                reprompt_text = None
-                
-            else: 
-                speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
-                reprompt_text = "You can get the surf report by saying something like, tell me the surf report at steamer lane."
-                should_end_session = False
         else:
-            speech_output = "Talk to you later."
-            reprompt_text = None
-            should_end_session = True
-    else:
-        speech_output = "Im not sure what surf spot you said. "
+            speech_output = "Im not sure what surf spot you said. "
+            reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
+            should_end_session = False
+        return build_response(session_attributes, build_speechlet_response(
+            card_title, speech_output, reprompt_text, should_end_session))
+    except:
+        speech_output = "Im not sure what surf spot you said. Can you try again? "
         reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
         should_end_session = False
-    return build_response(session_attributes, build_speechlet_response(
-        card_title, speech_output, reprompt_text, should_end_session))
+        
 
 
 def create_favorite_color_attributes(favorite_color):
