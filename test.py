@@ -133,7 +133,11 @@ def on_intent(intent_request, session):
     elif intent_name == "WhatsMyColorIntent":
         return get_color_from_session(intent, session)
     elif intent_name == "AMAZON.HelpIntent":
-        return get_welcome_response()
+        return get_help_response()
+    elif intent_name == "AMAZON.StopIntent":
+        return get_stop_response()
+    elif intent_name == "AMAZON.CancelIntent":
+        return get_stop_response()
     else:
         intent_name = "MyColorIsIntent"
         intent = "something"
@@ -160,11 +164,36 @@ def get_welcome_response():
 
     session_attributes = {}
     card_title = "Welcome"
-    speech_output = "Hey Bro, I can tell you surf reports of popular spots in California. To get started just say something like, tell me the surf report at mavericks." 
+    speech_output = "Hey Bro, welcome to Surfable. I can tell you surf reports of popular spots in California. To get started tell me the name of the surf spot you are intersted in. What spot are you interested in?" 
     # If the user either does not reply to the welcome message or says something
     # that is not understood, they will be prompted again with this text.
     reprompt_text = "Please tell me your surf spot by saying, " \
                     "my surf spot is Mavericks."
+    should_end_session = False
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
+
+def get_help_response():
+    """ If we wanted to initialize the session to have some attributes we could
+    add those here
+    """
+
+    session_attributes = {}
+    card_title = "Help"
+    speech_output = "Surfable can tell you the surf report at popular surf spots in California. To get started say your surf spots name. For instance you can say, seal beach pier, and you will get the surf report at seal beach pier. Give it a try." 
+    reprompt_text = "Can you try saying your surf spot?"
+    should_end_session = False
+    return build_response(session_attributes, build_speechlet_response(
+        card_title, speech_output, reprompt_text, should_end_session))
+def get_stop_response():
+    """ If we wanted to initialize the session to have some attributes we could
+    add those here
+    """
+
+    session_attributes = {}
+    card_title = "Goodbye"
+    speech_output = "Goodbye"
+    reprompt_text = None
     should_end_session = False
     return build_response(session_attributes, build_speechlet_response(
         card_title, speech_output, reprompt_text, should_end_session))
@@ -206,7 +235,6 @@ def set_color_in_session(intent, session):
                     should_end_session = True
                     speech_output = "ummm okay"
                     reprompt_text = None
-                    
                 else: 
                     speech_output = 'I dont know the surf report at that spot yet. You can try another spot in California.'
                     reprompt_text = 'You can get the surf report by saying something like, tell me the surf report at steamer lane.'
@@ -216,15 +244,24 @@ def set_color_in_session(intent, session):
                 reprompt_text = None
                 should_end_session = True
         else:
-            speech_output = "Im not sure what surf spot you said. "
-            reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
+            speech_output = "I am not sure what surf spot you said. Can you please say it again? "
+            reprompt_text = "I am not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
             should_end_session = False
         return build_response(session_attributes, build_speechlet_response(
             card_title, speech_output, reprompt_text, should_end_session))
     except:
-        speech_output = "Im not sure what surf spot you said. Can you try again? "
-        reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying, tell me the surf report at huntington pier"
-        should_end_session = False
+        if intent['slots']['Color']['value'] == 'stop':
+            should_end_session = True
+            speech_output = "Goodbye"
+            reprompt_text = None
+        elif intent['slots']['Color']['value'] == 'cancel':
+            should_end_session = True
+            speech_output = "Goodbye"
+            reprompt_text = None
+        else:
+            speech_output = "Im not sure what surf spot you said. Can you try again? "
+            reprompt_text = "Im not sure what spot you said.. You can tell me what report you want by saying something like, tell me the surf report at huntington pier."
+            should_end_session = False
         
 
 
